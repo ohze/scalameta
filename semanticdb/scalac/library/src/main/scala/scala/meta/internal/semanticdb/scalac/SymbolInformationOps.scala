@@ -161,9 +161,9 @@ trait SymbolInformationOps { self: SemanticdbOps =>
           ssig match {
             case ssig: s.ClassSignature =>
               val parents1 = ssig.parents.flatMap {
-                case s.TypeRef(s.NoType, "scala/annotation/Annotation#", Nil) =>
+                case s.TypeRef(s.NoType, "scala/annotation/Annotation#", Nil, _) =>
                   Some(s.TypeRef(s.NoType, "java/lang/Object#", Nil))
-                case s.TypeRef(s.NoType, "scala/annotation/ClassfileAnnotation#", Nil) =>
+                case s.TypeRef(s.NoType, "scala/annotation/ClassfileAnnotation#", Nil, _) =>
                   None
                 case sother =>
                   Some(sother)
@@ -176,9 +176,9 @@ trait SymbolInformationOps { self: SemanticdbOps =>
           ssig match {
             case ssig: s.TypeSignature =>
               val upperBound1 = ssig.upperBound match {
-                case s.StructuralType(s.WithType(tpes), _) =>
+                case s.StructuralType(s.WithType(tpes, _), _, _) =>
                   s.IntersectionType(tpes)
-                case s.TypeRef(s.NoType, "scala/Any#", Nil) =>
+                case s.TypeRef(s.NoType, "scala/Any#", Nil, _) =>
                   s.TypeRef(s.NoType, "java/lang/Object#", Nil)
                 case sother =>
                   sother

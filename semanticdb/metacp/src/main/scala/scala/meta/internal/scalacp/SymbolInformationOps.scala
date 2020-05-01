@@ -204,7 +204,7 @@ trait SymbolInformationOps { self: Scalacp =>
     )
     private def syntheticAnnotations(annot: s.Annotation): Boolean = {
       annot.tpe match {
-        case s.TypeRef(_, sym, _) => syntheticAnnotationsSymbols.contains(sym)
+        case s.TypeRef(_, sym, _, _) => syntheticAnnotationsSymbols.contains(sym)
         case _ => false
       }
     }

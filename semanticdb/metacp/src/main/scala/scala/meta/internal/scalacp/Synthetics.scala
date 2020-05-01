@@ -27,7 +27,7 @@ object Synthetics {
       else getterSym + "+2"
     }
     val paramSig = getterInfo.signature match {
-      case s.MethodSignature(_, _, sret) => s.ValueSignature(sret)
+      case s.MethodSignature(_, _, sret, _) => s.ValueSignature(sret)
       case _ => s.NoSignature
     }
     val paramInfo = s.SymbolInformation(

@@ -93,30 +93,30 @@ trait SymbolInformationPrinter extends BasePrinter {
 
     private def pprint(acc: Access): Unit = {
       acc match {
-        case PrivateAccess() =>
+        case PrivateAccess(_) =>
           out.print("private ")
-        case PrivateThisAccess() =>
+        case PrivateThisAccess(_) =>
           out.print("private[this] ")
-        case PrivateWithinAccess(sym) =>
+        case PrivateWithinAccess(sym, _) =>
           out.print("private[")
           pprint(sym, Reference)
           out.print("] ")
-        case ProtectedAccess() =>
+        case ProtectedAccess(_) =>
           out.print("protected ")
-        case ProtectedThisAccess() =>
+        case ProtectedThisAccess(_) =>
           out.print("protected[this] ")
-        case ProtectedWithinAccess(sym) =>
+        case ProtectedWithinAccess(sym, _) =>
           out.print("protected[")
           pprint(sym, Reference)
           out.print("] ")
-        case NoAccess | PublicAccess() =>
+        case NoAccess | PublicAccess(_) =>
           out.print("")
       }
     }
 
     def pprint(sig: Signature): Unit = {
       sig match {
-        case ClassSignature(tparams, parents, self, decls) =>
+        case ClassSignature(tparams, parents, self, decls, _) =>
           rep("[", tparams.infos, ", ", "]")(pprintDefn)
           rep(" extends ", parents, " with ")(pprint)
           if (self.nonEmpty || decls.infos.nonEmpty) {
@@ -133,27 +133,27 @@ trait SymbolInformationPrinter extends BasePrinter {
           if (self.nonEmpty || decls.infos.nonEmpty) {
             out.print(" }")
           }
-        case MethodSignature(tparams, paramss, res) =>
+        case MethodSignature(tparams, paramss, res, _) =>
           rep("[", tparams.infos, ", ", "]")(pprintDefn)
           rep("(", paramss, ")(", ")")(params => rep(params.infos, ", ")(pprintDefn))
           opt(": ", res)(pprint)
-        case TypeSignature(tparams, lo, hi) =>
+        case TypeSignature(tparams, lo, hi, _) =>
           rep("[", tparams.infos, ", ", "]")(pprintDefn)
           if (lo != hi) {
             lo match {
-              case TypeRef(NoType, "scala/Nothing#", Nil) => ()
+              case TypeRef(NoType, "scala/Nothing#", Nil, _) => ()
               case lo => opt(" >: ", lo)(pprint)
             }
             hi match {
-              case TypeRef(NoType, "scala/Any#", Nil) => ()
-              case TypeRef(NoType, "java/lang/Object#", Nil) => ()
+              case TypeRef(NoType, "scala/Any#", Nil, _) => ()
+              case TypeRef(NoType, "java/lang/Object#", Nil, _) => ()
               case hi => opt(" <: ", hi)(pprint)
             }
           } else {
             val alias = lo
             opt(" = ", alias)(pprint)
           }
-        case ValueSignature(tpe) =>
+        case ValueSignature(tpe, _) =>
           pprint(tpe)
         case NoSignature =>
           out.print("<?>")
@@ -163,7 +163,7 @@ trait SymbolInformationPrinter extends BasePrinter {
     def pprint(tpe: Type): Unit = {
       def prefix(tpe: Type): Unit = {
         tpe match {
-          case TypeRef(pre, sym, args) =>
+          case TypeRef(pre, sym, args, _) =>
             pre match {
               case _: SingleType | _: ThisType | _: SuperType =>
                 prefix(pre)
@@ -176,45 +176,45 @@ trait SymbolInformationPrinter extends BasePrinter {
             }
             pprintRef(sym)
             rep("[", args, ", ", "]")(normal)
-          case SingleType(pre, sym) =>
+          case SingleType(pre, sym, _) =>
             opt(pre, ".")(prefix)
             pprintRef(sym)
-          case ThisType(sym) =>
+          case ThisType(sym, _) =>
             opt(sym, ".")(pprintRef)
             out.print("this")
-          case SuperType(pre, sym) =>
+          case SuperType(pre, sym, _) =>
             opt(pre, ".")(prefix)
             out.print("super")
             opt("[", sym, "]")(pprintRef)
-          case ConstantType(const) =>
+          case ConstantType(const, _) =>
             pprint(const)
-          case IntersectionType(types) =>
+          case IntersectionType(types, _) =>
             rep(types, " & ")(normal)
-          case UnionType(types) =>
+          case UnionType(types, _) =>
             rep(types, " | ")(normal)
-          case WithType(types) =>
+          case WithType(types, _) =>
             rep(types, " with ")(normal)
-          case StructuralType(utpe, decls) =>
+          case StructuralType(utpe, decls, _) =>
             decls.infos.foreach(notes.discover)
             opt(utpe)(normal)
             if (decls.infos.nonEmpty) rep(" { ", decls.infos, "; ", " }")(pprintDefn)
             else out.print(" {}")
-          case AnnotatedType(anns, utpe) =>
+          case AnnotatedType(anns, utpe, _) =>
             opt(utpe)(normal)
             out.print(" ")
             rep(anns, " ", "")(pprint)
-          case ExistentialType(utpe, decls) =>
+          case ExistentialType(utpe, decls, _) =>
             decls.infos.foreach(notes.discover)
             opt(utpe)(normal)
             rep(" forSome { ", decls.infos, "; ", " }")(pprintDefn)
-          case UniversalType(tparams, utpe) =>
+          case UniversalType(tparams, utpe, _) =>
             tparams.infos.foreach(notes.discover)
             rep("[", tparams.infos, ", ", "] => ")(pprintDefn)
             opt(utpe)(normal)
-          case ByNameType(utpe) =>
+          case ByNameType(utpe, _) =>
             out.print("=> ")
             opt(utpe)(normal)
-          case RepeatedType(utpe) =>
+          case RepeatedType(utpe, _) =>
             opt(utpe)(normal)
             out.print("*")
           case NoType =>
@@ -306,29 +306,29 @@ trait SymbolInformationPrinter extends BasePrinter {
       const match {
         case NoConstant =>
           out.print("<?>")
-        case UnitConstant() =>
+        case UnitConstant(_) =>
           out.print("()")
-        case BooleanConstant(true) =>
+        case BooleanConstant(true, _) =>
           out.print(true)
-        case BooleanConstant(false) =>
+        case BooleanConstant(false, _) =>
           out.print(false)
-        case ByteConstant(value) =>
+        case ByteConstant(value, _) =>
           out.print(value.toByte)
-        case ShortConstant(value) =>
+        case ShortConstant(value, _) =>
           out.print(value.toShort)
-        case CharConstant(value) =>
+        case CharConstant(value, _) =>
           out.print("'" + value.toChar + "'")
-        case IntConstant(value) =>
+        case IntConstant(value, _) =>
           out.print(value)
-        case LongConstant(value) =>
+        case LongConstant(value, _) =>
           out.print(value + "L")
-        case FloatConstant(value) =>
+        case FloatConstant(value, _) =>
           out.print(value + "f")
-        case DoubleConstant(value) =>
+        case DoubleConstant(value, _) =>
           out.print(value)
-        case StringConstant(value) =>
+        case StringConstant(value, _) =>
           out.print("\"" + value + "\"")
-        case NullConstant() =>
+        case NullConstant(_) =>
           out.print("null")
       }
     }

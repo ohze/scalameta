@@ -50,8 +50,8 @@ $original
     test("type - " + symbol) {
       val info = symtab.info(symbol).get
       val tpe = info.signature match {
-        case s.ValueSignature(tpe) => tpe
-        case s.MethodSignature(_, _, tpe) => tpe
+        case s.ValueSignature(tpe, _) => tpe
+        case s.MethodSignature(_, _, tpe, _) => tpe
         case e => throw new MatchError(e)
       }
       val obtained = Print.tpe(Format.Compact, tpe, printerSymtab)

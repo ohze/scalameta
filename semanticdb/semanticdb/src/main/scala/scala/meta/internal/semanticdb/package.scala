@@ -52,8 +52,8 @@ package object semanticdb {
     def isProtectedWithin: Boolean = info.access.isInstanceOf[ProtectedWithinAccess]
     def isPublic: Boolean = info.access.isInstanceOf[PublicAccess]
     def within: Option[String] = info.access match {
-      case PrivateWithinAccess(symbol) => Some(symbol)
-      case ProtectedWithinAccess(symbol) => Some(symbol)
+      case PrivateWithinAccess(symbol, _) => Some(symbol)
+      case ProtectedWithinAccess(symbol, _) => Some(symbol)
       case _ => None
     }
   }
@@ -96,17 +96,17 @@ package object semanticdb {
     def value: Option[Any] = {
       const match {
         case NoConstant => None
-        case UnitConstant() => Some(())
-        case BooleanConstant(value) => Some(value)
-        case ByteConstant(value) => Some(value.toByte)
-        case ShortConstant(value) => Some(value.toShort)
-        case CharConstant(value) => Some(value.toChar)
-        case IntConstant(value) => Some(value)
-        case LongConstant(value) => Some(value)
-        case FloatConstant(value) => Some(value)
-        case DoubleConstant(value) => Some(value)
-        case StringConstant(value) => Some(value)
-        case NullConstant() => Some(null)
+        case UnitConstant(_) => Some(())
+        case BooleanConstant(value, _) => Some(value)
+        case ByteConstant(value, _) => Some(value.toByte)
+        case ShortConstant(value, _) => Some(value.toShort)
+        case CharConstant(value, _) => Some(value.toChar)
+        case IntConstant(value, _) => Some(value)
+        case LongConstant(value, _) => Some(value)
+        case FloatConstant(value, _) => Some(value)
+        case DoubleConstant(value, _) => Some(value)
+        case StringConstant(value, _) => Some(value)
+        case NullConstant(_) => Some(null)
       }
     }
   }
