@@ -35,6 +35,76 @@ class TargetedSuite extends SemanticdbSuite {
     }
   )
 
+  occurrences(
+    """|// See https://github.com/scalameta/scalameta/issues/2040
+       |package example
+       |
+       |import scala.language.implicitConversions
+       |
+       |object Issue2040 {
+       |  trait Prettifier
+       |  object Prettifier {
+       |    implicit val default: Prettifier = ???
+       |  }
+       |
+       |  trait AnyShouldWrapper {
+       |    def shouldBe(right: Any): Boolean
+       |  }
+       |
+       |  trait Base {
+       |    def i() = 1
+       |  }
+       |
+       |  trait FooSpec extends Base {
+       |    implicit def convertToAnyShouldWrapper(o: Any): AnyShouldWrapper
+       |
+       |    i shouldBe 1
+       |  }
+       |
+       |  trait BarSpec extends Base {
+       |    implicit def convertToAnyShouldWrapper(o: Any)(implicit prettifier: Prettifier): AnyShouldWrapper
+       |
+       |    i shouldBe 1
+       |  }
+       |}
+    """.stripMargin,
+    """|[1:8..1:15): example <= example/
+       |[3:7..3:12): scala => scala/
+       |[3:13..3:21): language => scala/language.
+       |[3:22..3:41): implicitConversions => scala/language.implicitConversions.
+       |[5:7..5:16): Issue2040 <= example/Issue2040.
+       |[6:8..6:18): Prettifier <= example/Issue2040.Prettifier#
+       |[7:9..7:19): Prettifier <= example/Issue2040.Prettifier.
+       |[8:17..8:24): default <= example/Issue2040.Prettifier.default.
+       |[8:26..8:36): Prettifier => example/Issue2040.Prettifier#
+       |[8:39..8:42): ??? => scala/Predef.`???`().
+       |[11:8..11:24): AnyShouldWrapper <= example/Issue2040.AnyShouldWrapper#
+       |[12:8..12:16): shouldBe <= example/Issue2040.AnyShouldWrapper#shouldBe().
+       |[12:17..12:22): right <= example/Issue2040.AnyShouldWrapper#shouldBe().(right)
+       |[12:24..12:27): Any => scala/Any#
+       |[12:30..12:37): Boolean => scala/Boolean#
+       |[15:8..15:12): Base <= example/Issue2040.Base#
+       |[16:8..16:9): i <= example/Issue2040.Base#i().
+       |[19:8..19:15): FooSpec <= example/Issue2040.FooSpec#
+       |[19:24..19:28): Base => example/Issue2040.Base#
+       |[20:17..20:42): convertToAnyShouldWrapper <= example/Issue2040.FooSpec#convertToAnyShouldWrapper().
+       |[20:43..20:44): o <= example/Issue2040.FooSpec#convertToAnyShouldWrapper().(o)
+       |[20:46..20:49): Any => scala/Any#
+       |[20:52..20:68): AnyShouldWrapper => example/Issue2040.AnyShouldWrapper#
+       |[22:4..22:5): i => example/Issue2040.Base#i().
+       |[22:6..22:14): shouldBe => example/Issue2040.AnyShouldWrapper#shouldBe().
+       |[25:8..25:15): BarSpec <= example/Issue2040.BarSpec#
+       |[25:24..25:28): Base => example/Issue2040.Base#
+       |[26:17..26:42): convertToAnyShouldWrapper <= example/Issue2040.BarSpec#convertToAnyShouldWrapper().
+       |[26:43..26:44): o <= example/Issue2040.BarSpec#convertToAnyShouldWrapper().(o)
+       |[26:46..26:49): Any => scala/Any#
+       |[26:60..26:70): prettifier <= example/Issue2040.BarSpec#convertToAnyShouldWrapper().(prettifier)
+       |[26:72..26:82): Prettifier => example/Issue2040.Prettifier#
+       |[26:85..26:101): AnyShouldWrapper => example/Issue2040.AnyShouldWrapper#
+       |[28:4..28:5): i => example/Issue2040.Base#i().
+       |[28:6..28:14): shouldBe => example/Issue2040.AnyShouldWrapper#shouldBe().
+       |""".stripMargin
+  )
   // Checks def macros that we can't test in expect tests because expect tests have no dependencies.
   occurrences(
     """|package e
