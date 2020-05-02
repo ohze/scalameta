@@ -11,7 +11,7 @@ import sbt.ScriptedPlugin._
 import complete.DefaultParsers._
 import scalapb.compiler.Version.scalapbVersion
 
-lazy val LanguageVersions = Seq(LatestScala213, LatestScala212, LatestScala211)
+lazy val LanguageVersions = Seq(LatestScala213, LatestScala212)
 lazy val LanguageVersion = LanguageVersions.head
 def customVersion = sys.props.get("scalameta.version")
 
